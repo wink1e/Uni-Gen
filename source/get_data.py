@@ -48,15 +48,31 @@ class CP2K_MD:
     def load_traj_pot(self):
         r"""self.pot: numpy array, shape=(nframe,)"""
         file_path = None
-        for file in os.listdir(self.path):
-            if file.endswith('.ener'):
-                file_path = os.path.join(self.path, file)
-                break
-        assert file_path is not None
-        data = pd.read_table(file_path, engine='python', sep='\s+', header=None, comment='#')
-        self.time = np.array(data.loc[:, 1])
-        self.pot_origin = np.array(data.loc[0, 4])
-        self.pot = np.array(data.loc[:, 4])
+        try:
+            for file in os.listdir(self.path):
+                if file.endswith('.ener'):
+                    file_path = os.path.join(self.path, file)
+                    break
+            assert file_path is not None
+            data = pd.read_table(file_path, engine='python', sep='\s+', header=None, comment='#')
+            self.time = np.array(data.loc[:, 1])
+            self.pot_origin = np.array(data.loc[0, 4])
+            self.pot = np.array(data.loc[:, 4])
+        except AssertionError:
+            for file in os.listdir(self.path):
+                if file.endswith('.xyz') and ('pos-1' in file):
+                    file_path = os.path.join(self.path, file)
+                    break
+            assert file_path is not None
+            with open(file_path, 'r') as f:
+                pot = []
+                n_atoms = int(f.readline())
+                lines = f.readlines()
+                lines = lines[::(n_atoms+2)]
+                for line in lines:
+                    pot.append(float(line.split()[5]))
+            self.pot = pot
+
 
     def load_traj_coord(self):
         r"""self.coord: numpy array, shape=(nframe, 3*natoms)"""

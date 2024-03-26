@@ -4,3 +4,4 @@ from source import get_model
 from source import randomize_mol
 from source import test_model
 from source import train_model
+from source import train_model_dist
