@@ -4,11 +4,13 @@ import torch.utils.data
 import numpy as np
 import time
 import os
-from source import get_data
+import get_data
 from unicore.data import Dictionary
-from unimol_tools.data.conformer import ConformerGen
+try:
+    from unimol.data.conformer import ConformerGen
+except ModuleNotFoundError:
+    from unimol_tools.data.conformer import ConformerGen
 # This script is the main program of active learning part.
-
 
 text_path = os.path.join('../', 'source', 'mol.dict.txt')
 
@@ -188,4 +190,6 @@ if __name__ == "__main__":
     dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=2)
     print(len(dataloader_train))
     print(len(dataloader_val))
+    model = 
+    train_active()
 
