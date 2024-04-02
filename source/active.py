@@ -5,6 +5,7 @@ import numpy as np
 import time
 import os
 import get_data
+import get_model
 from unicore.data import Dictionary
 try:
     from unimol.data.conformer import ConformerGen
@@ -185,11 +186,12 @@ class MyDataset(torch.utils.data.Dataset):
 
 if __name__ == "__main__":
     text_path = os.path.join('../', 'source', 'mol.dict.txt')
+    checkpoint_dir = ''
     dictionary_test = Dictionary.load(text_path)
     d_input, d_prompt, d_target = read_opt_file('./test')
     dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=2)
     print(len(dataloader_train))
     print(len(dataloader_val))
-    model = 
-    train_active()
+    model = get_model.load_model(text_path, checkpoint_dir)
+    active_train(model, 1e-3, 3, 2, dataloader_train, dataloader_val, device='cpu', checkpoint_dir=checkpoint_dir, checkpoint_interval=1)
 
