@@ -71,6 +71,25 @@ def read_opt_file(file_path, prompt_path=None):
     return active_input, active_prompt, active_target
 
 
+def read_opt_files(dir_path, prompt_path=None):
+    active_inputs = {'atoms': [], 'coordinates':[], 'energy': []}
+    active_targets = {'atoms': [], 'coordinates':[], 'energy': []}
+    active_prompts = {'atoms': [], 'coordinates':[], 'energy': []}
+    assert os.path.exists(dir_path)
+    for subdir in os.listdir(dir_path):
+        file_path = os.path.join(dir_path, subdir)
+        if os.path.isdir(file_path):
+            print(f'Loading form path {file_path}:')
+            temp_input, temp_prompt, temp_target = read_opt_file(file_path=file_path, prompt_path=prompt_path)
+            active_inputs['atoms'] += temp_input['atoms']
+            active_inputs['coordinates'] += temp_input['coordinates']
+            active_targets['atoms'] += temp_target['atoms']
+            active_targets['coordinates'] += temp_target['coordinates']
+            active_prompts['atoms'] += temp_prompt['atoms']
+            active_prompts['coordinates'] += temp_prompt['coordinates']
+    return active_inputs, active_prompts, active_targets
+
+
 def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
                  train_loader, val_loader, device, checkpoint_dir, checkpoint_interval):
     # initialize training parameter
@@ -93,8 +112,8 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
             begin_time = time.time()
             net_input, net_target = batch
             decoder_distance, decoder_coord = model(*net_input)
-            loss = (criterion(decoder_distance, net_target[0].to(device))
-                    + 2 * criterion(decoder_coord, net_input[1].to(device)))
+            loss = (criterion(decoder_distance, net_target[1].to(device))
+                    + 2 * criterion(decoder_coord, net_input[3].to(device)))
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -115,15 +134,15 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
                 begin_time = time.time()
                 net_input, net_target = batch
                 decoder_distance, decoder_coord = model(*net_input)
-                loss = (criterion(decoder_distance, net_target[0].to(device))
-                        + 2 * criterion(decoder_coord, net_input[1].to(device)))
+                loss = (criterion(decoder_distance, net_target[1].to(device))
+                        + 2 * criterion(decoder_coord, net_input[3].to(device)))
                 loss_epoch_val += loss.data
                 batch_time = time.time() - begin_time
                 print(f"\r Batch {batch_i}/{num_batch}==Validation loss {loss.data:.8f}, Time {batch_time:.2f}s",
                       end='', flush=True)
             loss_epoch_val /= num_batch
             epoch_time = time.time() - begin_epoch_time
-            print(f"\r Epoch {epoch}/{num_epoch}==Train loss: {loss_epoch_train:.8f}, Time {epoch_time:.2f}", end='\t')
+            print(f"\r Epoch {epoch}/{num_epoch}==Validation loss: {loss_epoch_train:.8f}, Time {epoch_time:.2f}", end='\t')
         scheduler.step(loss_epoch_val)
         loss_train_list.append(loss_epoch_train)
         loss_val_list.append(loss_epoch_val)
@@ -135,7 +154,7 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
                           "epoch": epoch,
                           "loss_train_list": loss_train_list,
                           "loss_val_list": loss_val_list}
-            checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_{epoch}_epoch.pkl")
+            checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_{epoch}_epoch_active.pkl")
             torch.save(checkpoint, checkpoint_path)
 
 
@@ -186,12 +205,12 @@ class MyDataset(torch.utils.data.Dataset):
 
 if __name__ == "__main__":
     text_path = os.path.join('../', 'source', 'mol.dict.txt')
-    checkpoint_dir = ''
+    checkpoint_dir = '/home/junli/WORK/libin/model'
     dictionary_test = Dictionary.load(text_path)
-    d_input, d_prompt, d_target = read_opt_file('./test')
-    dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=2)
+    d_input, d_prompt, d_target = read_opt_files('./test')
+    dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=4)
     print(len(dataloader_train))
     print(len(dataloader_val))
     model = get_model.load_model(text_path, checkpoint_dir)
-    active_train(model, 1e-3, 3, 2, dataloader_train, dataloader_val, device='cpu', checkpoint_dir=checkpoint_dir, checkpoint_interval=1)
+    active_train(model, 1e-3, 3, 200, dataloader_train, dataloader_val, device='cpu', checkpoint_dir=checkpoint_dir, checkpoint_interval=5)
 

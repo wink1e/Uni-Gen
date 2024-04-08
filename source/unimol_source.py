@@ -12,7 +12,7 @@ from unicore.models import BaseUnicoreModel, register_model, register_model_arch
 from unicore.modules import LayerNorm, init_bert_params
 
 ####################################################################change here
-from .transformer_encoder_with_pair import TransformerEncoderWithPair
+from transformer_encoder_with_pair import TransformerEncoderWithPair
 
 logger = logging.getLogger(__name__)
 
