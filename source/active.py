@@ -53,7 +53,8 @@ def read_opt_file(file_path, prompt_path=None):
             target_index.append(i)
             old_index = i
             old_ener = traj_all.pot[i]
-
+    if len(input_index) == 0:
+        return None, None, None
     active_input['atoms'] += [traj_all.atom_type for _ in range(len(input_index))]
     active_input['coordinates'] += list(traj_all.coord[input_index].reshape(len(input_index), -1, 3))
     print(f"Active training data: {len(input_index)} frames")
