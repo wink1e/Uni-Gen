@@ -99,13 +99,13 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
     loss_train_list = []
     loss_val_list = []
     start_epoch = 0
-    loss_epoch_train = 0
-    loss_epoch_val = 0
     begin_epoch_time = time.time()
     # training process
     model = old_model.to(device)
     for epoch in range(start_epoch, num_epoch):
         # training
+        loss_epoch_train = 0
+        loss_epoch_val = 0
         model = model.train()
         num_batch = len(train_loader)
         for batch_i, batch in enumerate(train_loader):
@@ -117,7 +117,7 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            loss_epoch_train += loss.data
+            loss_epoch_train += loss.item()
             batch_time = time.time() - begin_time
             print(f"\r Batch {batch_i}/{num_batch}==Train loss {loss.data:.8f}, Time {batch_time:.2f}s",
                   end='', flush=True)
@@ -136,26 +136,27 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
                 decoder_distance, decoder_coord = model(*net_input)
                 loss = (criterion(decoder_distance, net_target[1].to(device))
                         + 2 * criterion(decoder_coord, net_input[3].to(device)))
-                loss_epoch_val += loss.data
+                loss_epoch_val += loss.item()
                 batch_time = time.time() - begin_time
                 print(f"\r Batch {batch_i}/{num_batch}==Validation loss {loss.data:.8f}, Time {batch_time:.2f}s",
                       end='', flush=True)
             loss_epoch_val /= num_batch
             epoch_time = time.time() - begin_epoch_time
-            print(f"\r Epoch {epoch}/{num_epoch}==Validation loss: {loss_epoch_train:.8f}, Time {epoch_time:.2f}", end='\t')
+            print(f"\r Epoch {epoch}/{num_epoch}==Validation loss: {loss_epoch_val:.8f}, Time {epoch_time:.2f}", end='\t')
         scheduler.step(loss_epoch_val)
         loss_train_list.append(loss_epoch_train)
         loss_val_list.append(loss_epoch_val)
 
         # Save checkpoint file
-        if epoch % checkpoint_interval == 0:
+        if (epoch+1) % checkpoint_interval == 0:
             checkpoint = {"model_state_dict": model.state_dict(),
                           "optimizer_state_dict": optimizer.state_dict(),
                           "epoch": epoch,
                           "loss_train_list": loss_train_list,
                           "loss_val_list": loss_val_list}
-            checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_{epoch}_epoch_active.pkl")
+            checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_{epoch+1}_epoch_active.pkl")
             torch.save(checkpoint, checkpoint_path)
+    print(f"Training loss list: {loss_train_list}\n Validation loss list: {loss_val_list}")
 
 
 def get_dataloader_active(data_input, data_prompt, data_target, dictionary, batch_size):
