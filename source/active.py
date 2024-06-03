@@ -276,7 +276,6 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
 
         # Save checkpoint file
         if (epoch+1) % checkpoint_interval == 0:
-        if (epoch+1) % checkpoint_interval == 0:
             checkpoint = {"model_state_dict": model.state_dict(),
                           "optimizer_state_dict": optimizer.state_dict(),
                           "epoch": epoch,
