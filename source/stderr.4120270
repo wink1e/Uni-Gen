@@ -1,0 +1,22 @@
+import: unable to open X server `localhost:64.0' @ error/import.c/ImportImageCommand/344.
+/home/junli/WORK/libin/miniconda3/condabin/conda: line 6: syntax error near unexpected token `sys.argv'
+/home/junli/WORK/libin/miniconda3/condabin/conda: line 6: `if len(sys.argv) > 1 and sys.argv[1].startswith('shell.') and sys.path and sys.path[0] == '':'
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+

@@ -12,7 +12,7 @@ from unicore.models import BaseUnicoreModel, register_model, register_model_arch
 from unicore.modules import LayerNorm, init_bert_params
 from unicore.modules import SelfMultiheadAttention, softmax_dropout
 
-from .unimol_source import UniMolModel
+from unimol_source import UniMolModel
 
 logger = logging.getLogger()
 
