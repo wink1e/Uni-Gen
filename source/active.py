@@ -146,7 +146,7 @@ def read_opt_file(file_path, prompt_path=None):
             ener_diff = 0
         else:
             ener_diff = traj_all.pot[i] - old_ener
-        if ener_diff <= -0.05:
+        if ener_diff <= -0.005:
             input_index.append(old_index)
             target_index.append(i)
             old_index = i
@@ -335,15 +335,12 @@ class MyDataset(torch.utils.data.Dataset):
 
 if __name__ == "__main__":
     text_path = os.path.join('../', 'source', 'mol.dict.txt')
-    checkpoint_dir = '/home/junli/WORK/libin/model'
-    checkpoint_dir = '/home/junli/WORK/libin/model'
+    checkpoint_dir = '/root/WORK/libin/chk'
     dictionary_test = Dictionary.load(text_path)
     d_input, d_prompt, d_target = read_opt_files('./test')
-    dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=4)
-    d_input, d_prompt, d_target = read_opt_files('./test')
-    dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=4)
+    dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=16)
     print(len(dataloader_train))
     print(len(dataloader_val))
     model = get_model.load_model(text_path, checkpoint_dir)
-    active_train(model, 1e-3, 3, 200, dataloader_train, dataloader_val, device='cpu', checkpoint_dir=checkpoint_dir, checkpoint_interval=10)
+    active_train(model, 1e-3, 3, 200, dataloader_train, dataloader_val, device='cuda:0', checkpoint_dir=checkpoint_dir, checkpoint_interval=10)
 

@@ -5,12 +5,12 @@ import numpy as np
 import torch
 from scipy.spatial import distance_matrix
 from unicore.data import Dictionary
-from unimol.data.conformer import ConformerGen
-from unimol.models.nnmodel import NNDataset
-from unimol.tasks.trainer import NNDataLoader
-from unimol.utils import pad_coords, pad_2d, pad_1d_tokens
-from . import randomize_mol
-from . import get_model
+from unimol_tools.data.conformer import ConformerGen
+from unimol_tools.models.nnmodel import NNDataset
+from unimol_tools.tasks.trainer import NNDataLoader
+from unimol_tools.utils import pad_coords, pad_2d, pad_1d_tokens
+import randomize_mol
+import get_model
 import re
 import tqdm
 
