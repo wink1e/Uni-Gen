@@ -25,9 +25,9 @@ except ModuleNotFoundError:
     from unimol_tools.models.nnmodel import NNDataset
     from unimol_tools.tasks.trainer import NNDataLoader
     from unimol_tools.utils import pad_coords, pad_2d, pad_1d_tokens
-from . import get_data
-from . import get_model
-from . import randomize_mol
+import get_data
+import get_model
+import randomize_mol
 
 
 def batch_collate_fn(samples):

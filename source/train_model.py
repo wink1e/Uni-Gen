@@ -8,14 +8,19 @@ import numpy as np
 import torch
 from scipy.spatial import distance_matrix
 from unicore.data import Dictionary
-from unimol.data.conformer import ConformerGen
-from unimol.models.nnmodel import NNDataset
-from unimol.tasks.trainer import NNDataLoader
-from unimol.utils import pad_coords, pad_2d, pad_1d_tokens
-
-from . import get_data
-from . import get_model
-from . import randomize_mol
+try:
+    from unimol.data.conformer import ConformerGen
+    from unimol.models.nnmodel import NNDataset
+    from unimol.tasks.trainer import NNDataLoader
+    from unimol.utils import pad_coords, pad_2d, pad_1d_tokens
+except ModuleNotFoundError:
+    from unimol_tools.data.conformer import ConformerGen
+    from unimol_tools.models.nnmodel import NNDataset
+    from unimol_tools.tasks.trainer import NNDataLoader
+    from unimol_tools.utils import pad_coords, pad_2d, pad_1d_tokens
+import get_data
+import get_model
+import randomize_mol
 
 
 def batch_collate_fn(samples):

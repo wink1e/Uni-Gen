@@ -7,7 +7,6 @@ import torch
 import re
 from unicore.data import Dictionary
 import model
-import model
 
 
 def define_model(text_path: str):

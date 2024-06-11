@@ -231,6 +231,8 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
         for batch_i, batch in enumerate(train_loader):
             begin_time = time.time()
             net_input, net_target = batch
+            for i in range(len(net_input)):
+                net_input[i] = net_input[i].to(device)
             decoder_distance, decoder_coord = model(*net_input)
             loss = (criterion(decoder_distance, net_target[1].to(device))
                     + 2 * criterion(decoder_coord, net_input[3].to(device)))
@@ -256,6 +258,8 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
             for batch_i, batch in enumerate(val_loader):
                 begin_time = time.time()
                 net_input, net_target = batch
+                for i in range(len(net_input)):
+                    net_input[i] = net_input[i].to(device)
                 decoder_distance, decoder_coord = model(*net_input)
                 loss = (criterion(decoder_distance, net_target[1].to(device))
                         + 2 * criterion(decoder_coord, net_input[3].to(device)))
