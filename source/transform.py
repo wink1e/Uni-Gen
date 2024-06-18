@@ -82,6 +82,7 @@ class MyMolecule:
         else:
             self.coord = coord
         self.atom_type = atom_type
+        self.atom_num = len(self.atom_type)
         self.center = None
         self.new_coord = None
         self.new_atom_type = None
@@ -201,9 +202,9 @@ class MyMolecule:
         self.center = np.array([0.0, 0.0, 0.0])
 
 
-my_obj = MyMolecule.load_from_xyz(file_path=args.input_file)
-my_obj.convert(chemical_form=args.chemical_formula)
-my_obj.save_new_frame(save_path=args.output_dir)
+# my_obj = MyMolecule.load_from_xyz(file_path=args.input_file)
+# my_obj.convert(chemical_form=args.chemical_formula)
+# my_obj.save_new_frame(save_path=args.output_dir)
 
 #if __name__ == '__main__':
 #    g_obj = MyMolecule.load_from_xyz(file_path='./C44-D2-83.xyz')

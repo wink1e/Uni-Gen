@@ -14,7 +14,7 @@ except ModuleNotFoundError:
     from unimol.data.conformer import ConformerGen
 # This script is the main program of active learning part.
 
-text_path = os.path.join('../', 'source', 'mol.dict.txt')
+text_path = '/root/WORK/libin/UniGen/source/mol.dict.txt'
 dictionary_active = Dictionary.load(text_path)
 
 
@@ -111,7 +111,7 @@ def active_learning_iter(old_checkpoint_path, cp2k_input, num_parallel, batch_si
             os.makedirs(sys_i)
             # Initializing cp2k opt tasks
             gen_one_frame()
-            gen_cp2k_input()
+            gen_cp2k_input(cp2k_input)
         run_cp2k()
         # Training process
         d_input, d_prompt, d_target = read_opt_files(path_i)
@@ -168,25 +168,6 @@ def read_opt_file(file_path, prompt_path=None):
     active_target['atoms'] += [traj_all.atom_type for _ in range(len(target_index))]
     active_target['coordinates'] += list(traj_all.coord[target_index].reshape(len(target_index), -1, 3))
     return active_input, active_prompt, active_target
-
-
-def read_opt_files(dir_path, prompt_path=None):
-    active_inputs = {'atoms': [], 'coordinates':[], 'energy': []}
-    active_targets = {'atoms': [], 'coordinates':[], 'energy': []}
-    active_prompts = {'atoms': [], 'coordinates':[], 'energy': []}
-    assert os.path.exists(dir_path)
-    for subdir in os.listdir(dir_path):
-        file_path = os.path.join(dir_path, subdir)
-        if os.path.isdir(file_path):
-            print(f'Loading form path {file_path}:')
-            temp_input, temp_prompt, temp_target = read_opt_file(file_path=file_path, prompt_path=prompt_path)
-            active_inputs['atoms'] += temp_input['atoms']
-            active_inputs['coordinates'] += temp_input['coordinates']
-            active_targets['atoms'] += temp_target['atoms']
-            active_targets['coordinates'] += temp_target['coordinates']
-            active_prompts['atoms'] += temp_prompt['atoms']
-            active_prompts['coordinates'] += temp_prompt['coordinates']
-    return active_inputs, active_prompts, active_targets
 
 
 def read_opt_files(dir_path, prompt_path=None):
@@ -292,7 +273,7 @@ def active_train(old_model, lr: float, lr_patience: int, num_epoch: int,
     return loss_epoch_val
 
 
-def get_dataloader_active(data_input, data_prompt, data_target, dictionary, batch_size):
+def get_dataloader_active(data_input, data_prompt, data_target, dictionary, batch_size, bn_collate_fn=None):
     dataset = MyDataset(data_input, data_prompt, data_target, dictionary)
     num_set = len(dataset)
     num_train = math.floor(0.8 * num_set)
@@ -300,11 +281,13 @@ def get_dataloader_active(data_input, data_prompt, data_target, dictionary, batc
     train_set, val_set = torch.utils.data.random_split(dataset=dataset, lengths=[num_train, num_val])
     dataloader_train = torch.utils.data.DataLoader(
         dataset=train_set,
-        batch_size=batch_size
+        batch_size=batch_size,
+        collate_fn=bn_collate_fn
     )
     dataloader_val = torch.utils.data.DataLoader(
         dataset=val_set,
-        batch_size=batch_size
+        batch_size=batch_size,
+        collate_fn=bn_collate_fn
     )
     return dataloader_train, dataloader_val
 
@@ -338,13 +321,11 @@ class MyDataset(torch.utils.data.Dataset):
 
 
 if __name__ == "__main__":
-    text_path = os.path.join('../', 'source', 'mol.dict.txt')
+    text_path = '/root/WORK/libin/UniGen/source/mol.dict.txt'
     checkpoint_dir = '/root/WORK/libin/chk'
     dictionary_test = Dictionary.load(text_path)
-    d_input, d_prompt, d_target = read_opt_files('./test')
+    d_input, d_prompt, d_target = read_opt_files('/root/WORK/libin/UniGen/source/test')
     dataloader_train, dataloader_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=16)
-    print(len(dataloader_train))
-    print(len(dataloader_val))
     model = get_model.load_model(text_path, checkpoint_dir)
     active_train(model, 1e-3, 3, 200, dataloader_train, dataloader_val, device='cuda:0', checkpoint_dir=checkpoint_dir, checkpoint_interval=10)
 
