@@ -5,7 +5,6 @@ import transform
 import get_model
 from unicore.data import Dictionary
 from active import get_dataloader_active, active_train
-from train_model import batch_collate_fn
 
 # Data input
 def pad_data(input_xyz_dir):
@@ -35,12 +34,16 @@ def pad_data(input_xyz_dir):
     return struct_inputs, struct_prompts, struct_targets
 
 
+def my_collate_fn(samples) -> tuple[torch.Tensor, torch.Tensor]:
+    net_input
+
+
 if __name__ == "__main__":
     text_path = r'/root/WORK/libin/UniGen/source/mol.dict.txt'
     checkpoint_dir = r'/root/WORK/libin/chk'
     # model = get_model.load_model(text_path, checkpoint_dir)
     dictionary_test = Dictionary.load(text_path)
     d_input, d_prompt, d_target = pad_data(r'/root/WORK/libin/UniGen/source/test1')
-    d_train, d_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=2, bn_collate_fn=batch_collate_fn)
+    d_train, d_val = get_dataloader_active(d_input, d_prompt, d_target, dictionary_test, batch_size=2, bn_collate_fn=my_collate_fn)
     model = get_model.load_model(text_path, checkpoint_dir)
     _ = active_train(model, 1e-3, 3, 10, d_train, d_val, device='cuda:0', checkpoint_dir=checkpoint_dir, checkpoint_interval=10)

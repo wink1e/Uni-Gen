@@ -294,7 +294,7 @@ def get_dataloader_active(data_input, data_prompt, data_target, dictionary, batc
 
 class MyDataset(torch.utils.data.Dataset):
     def __init__(self, input_data, prompt_data, target_data, dictionary):
-        conformer = ConformerGen()
+        conformer = ConformerGen(max_atoms=1024)
         conformer.dictionary = dictionary
 
         self.data_input = conformer.transform_raw(input_data['atoms'], input_data['coordinates'])
