@@ -62,18 +62,18 @@ parser.add_argument(
     metavar="r",
     help="whether or not reading the previous checkpoint file.",
     default=False)
-# 需要先运行prepare_data代码生成pkl数据文件
+
 args = parser.parse_args()
 
-lr = args.lr  # 学习率
-lr_patience = args.lr_patience  # 学习率下降速度（值越小，速度越快）
-num_epoch = args.num_epoch  # 训练步数
-batch_size = args.batch_size  # 批量大小
-pkl_dir = args.pkl_dir  # 训练集验证集pkl文件的保存路径
-device = args.device  # 设备平台
+lr = args.lr  
+lr_patience = args.lr_patience  
+num_epoch = args.num_epoch  
+batch_size = args.batch_size  
+pkl_dir = args.pkl_dir  
+device = args.device  
 
-checkpoint_dir = args.checkpoint_dir  # 检查点的保存路径
-checkpoint_interval = args.heckpoint_interval  # 检查点的生成频率
+checkpoint_dir = args.checkpoint_dir  
+checkpoint_interval = args.heckpoint_interval  
 if_read_checkpoint = args.if_read_checkpoint
 
 train_model.train_model(lr=lr, lr_patience=lr_patience, num_epoch=num_epoch, batch_size=batch_size,
